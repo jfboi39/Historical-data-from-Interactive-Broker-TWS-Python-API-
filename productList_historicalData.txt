@@ -1,0 +1,2 @@
+uniqueID,symbol,securityType,exchange,currency,expiration,multiplier,startDate,delayTime,
+USDJPY,USD,CASH,IDEALPRO,JPY,,25000,2020-04-30 5:00:00,0,
