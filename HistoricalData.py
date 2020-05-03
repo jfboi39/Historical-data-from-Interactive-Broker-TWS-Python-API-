@@ -7,7 +7,6 @@ from ibapi.common import *
 from ibapi.order_state import *
 from threading import Timer
 from datetime import datetime, timedelta, date
-from ContractSamples import ContractSamples
 import csv
 import math
 import time
