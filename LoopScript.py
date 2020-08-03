@@ -23,7 +23,7 @@ if __name__ == "__main__":
         queryDay = (dt + timedelta(seconds=delay* 30.0 * 60.0)).weekday()
         queryHour = (dt + timedelta(seconds=delay * 30.0 * 60.0)).hour
 
-        if queryDay < 5 and queryHour >= 5 and queryHour < 17:
+        if queryDay < 5 and (queryHour >= 5 and queryHour < 17): #queryHour >= 5 and queryHour < 17
             #print("OS: ",i)
             os.system('python HistoricalData.py')
             i += 1

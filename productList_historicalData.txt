@@ -1,2 +1,2 @@
 uniqueID,symbol,securityType,exchange,currency,expiration,multiplier,startDate,delayTime,
-USDJPY,USD,CASH,IDEALPRO,JPY,,25000,2020-05-01 5:00:00,2,
+CADCHF,CAD,CASH,IDEALPRO,CHF,,25000,2019-12-02 5:30:00,11474,
