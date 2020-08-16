@@ -1,2 +1,2 @@
-uniqueID,symbol,securityType,exchange,currency,expiration,multiplier,startDate,delayTime,
-CADCHF,CAD,CASH,IDEALPRO,CHF,,25000,2019-12-02 5:30:00,11474,
+uniqueID,delayTime,symbol,securityType,exchange,currency,expiration,multiplier,startDate,endDate,
+EURCHF,20,EUR,CASH,IDEALPRO,CHF,,25000,2020-01-13 5:30:00,,

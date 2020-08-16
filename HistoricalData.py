@@ -15,10 +15,6 @@ import sys
 
 contract = {}
 marketRequestId = {}
-initialDelay = 0
-delay = 0
-startDate = "2020-12-31 00:00:00"
-currentFilename = None
 
 class App(EWrapper,EClient):
     def __init__(self):
@@ -44,21 +40,19 @@ class App(EWrapper,EClient):
         #Making identical historical data requests within 15 seconds.
         #Making six or more historical data requests for the same Contract, Exchange and Tick Type within two seconds.
         #Making more than 60 requests within any ten minute period. (BID_ASK is counted as twice).
-        # (30+31+30+31+31+30)*24*2 = 8,784 requests/product
-        global delay, initialDelay
-        initialDelay = delay
-        while initialDelay > (delay - 2):
-            for productName in contract:
-                dt = datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")
-                queryTime = (dt + timedelta(seconds=delay*30.0*60.0)).strftime("%Y%m%d %H:%M:%S") #30 minutes step.
+
+        for productName in contract:
+            while contract[productName].initialDelay > (contract[productName].delay - 2):
+                dt = datetime.strptime(contract[productName].startDate, "%Y-%m-%d %H:%M:%S")
+                queryTime = (dt + timedelta(seconds=contract[productName].delay*30.0*60.0)).strftime("%Y%m%d %H:%M:%S") #30 minutes step.
                 requestID += 1
                 self.reqHistoricalData(requestID, contract[productName], queryTime, "1800 S", "1 secs", "BID_ASK", 1, 1, False, [])
                 marketRequestId.update({requestID: productName})
                 #print(requestID,queryTime,marketRequestId[requestID])
                 #self.cancelHistoricalData(requestID)
-            delay += 1
-        self.modifyProductList()
-        time.sleep(10.1) #We need to wait for processing the request.
+                time.sleep(10.1)  # We need to wait for processing the request.
+                contract[productName].delay += 1
+            self.modifyProductList(productName)
         self.disconnect()
 
     def nextValidId(self, orderId: int):
@@ -80,6 +74,7 @@ class App(EWrapper,EClient):
         expirationIndex = header.index("expiration")
         multiplierIndex = header.index("multiplier")
         startDateIndex = header.index("startDate")
+        endDateIndex = header.index("endDate")
         delayTimeIndex = header.index("delayTime")
 
         if f.mode == 'r':
@@ -91,17 +86,18 @@ class App(EWrapper,EClient):
                 contract[row[uniqueIDIndex]].currency = row[currencyIndex]
                 contract[row[uniqueIDIndex]].lastTradeDateOrContractMonth = row[expirationIndex]
                 contract[row[uniqueIDIndex]].multiplier = row[multiplierIndex]
-                global startDate, delay
-                startDate = row[startDateIndex]
-                delay = int(row[delayTimeIndex])
+                contract[row[uniqueIDIndex]].startDate = row[startDateIndex]
+                contract[row[uniqueIDIndex]].endDate = row[endDateIndex]
+                contract[row[uniqueIDIndex]].initialDelay = int(row[delayTimeIndex])
+                contract[row[uniqueIDIndex]].delay = int(row[delayTimeIndex])
         f.close()
 
-    def modifyProductList(self):
+    def modifyProductList(self, productNameV):
         with open("productList_historicalData.txt", "r") as file :
             filedata = file.read()
 
-        oldStr = "," + str(initialDelay) + ","
-        newStr = "," + str(delay) + ","
+        oldStr = str(productNameV) + "," + str(contract[productNameV].initialDelay) + ","
+        newStr = str(productNameV) + "," + str(contract[productNameV].delay) + ","
         filedata = filedata.replace(oldStr, newStr)
 
         with open("productList_historicalData.txt", "w") as file:

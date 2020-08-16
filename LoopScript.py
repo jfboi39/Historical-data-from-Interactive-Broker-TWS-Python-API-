@@ -4,29 +4,35 @@ import csv
 from datetime import datetime, timedelta, date
 
 if __name__ == "__main__":
-    i = 0
-    while i < 8000:
+    condition = True
+    while condition:
         f = open("productList_historicalData.txt", "r")
         csvReader = csv.reader(f)
         header = next(csvReader)
         startDateIndex = header.index("startDate")
+        endDateIndex = header.index("endDate")
         delayTimeIndex = header.index("delayTime")
 
-        if f.mode == 'r':
+        if f.mode == 'r': #Start date, end date, and delays must be the same for every product.
             for row in csvReader:
                 startDate = row[startDateIndex]
+                endDate = row[endDateIndex]
                 delay = int(row[delayTimeIndex])
         f.close()
 
-        dt = datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")
-        #queryTime = (dt + timedelta(seconds=delay * 30.0 * 60.0)).strftime("%Y%m%d %H:%M:%S") # 30 minutes step.
-        queryDay = (dt + timedelta(seconds=delay* 30.0 * 60.0)).weekday()
-        queryHour = (dt + timedelta(seconds=delay * 30.0 * 60.0)).hour
+        dt_start = datetime.strptime(startDate, "%Y-%m-%d %H:%M:%S")
+        if(endDate == ""):
+            dt_end = datetime.now()
+        else:
+            dt_end = datetime.strptime(endDate, "%Y-%m-%d %H:%M:%S")
+        queryDay = (dt_start + timedelta(seconds=delay* 30.0 * 60.0)).weekday()
+        queryHour = (dt_start + timedelta(seconds=delay * 30.0 * 60.0)).hour
 
-        if queryDay < 5 and (queryHour >= 5 and queryHour < 17): #queryHour >= 5 and queryHour < 17
-            #print("OS: ",i)
+        if(dt_start > dt_end):
+            print("*** End date is greater than start date ***")
+            break
+        elif(queryDay < 5 and (queryHour >= 5 and queryHour < 17)):
             os.system('python HistoricalData.py')
-            i += 1
             time.sleep(60.1)
         else:
             with open("productList_historicalData.txt", "r") as file:
