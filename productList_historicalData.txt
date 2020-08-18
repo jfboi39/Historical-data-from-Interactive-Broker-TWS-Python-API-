@@ -1,2 +1,3 @@
 uniqueID,delayTime,symbol,securityType,exchange,currency,expiration,multiplier,startDate,endDate,
-EURCHF,20,EUR,CASH,IDEALPRO,CHF,,25000,2020-01-13 5:30:00,,
+EURCHF,1738,EUR,CASH,IDEALPRO,CHF,,25000,2020-01-13 5:30:00,,
+CHFJPY,1734,CHF,CASH,IDEALPRO,JPY,,25000,2020-01-13 5:30:00,,

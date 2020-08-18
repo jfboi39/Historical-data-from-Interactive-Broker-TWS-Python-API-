@@ -48,9 +48,7 @@ class App(EWrapper,EClient):
                 requestID += 1
                 self.reqHistoricalData(requestID, contract[productName], queryTime, "1800 S", "1 secs", "BID_ASK", 1, 1, False, [])
                 marketRequestId.update({requestID: productName})
-                #print(requestID,queryTime,marketRequestId[requestID])
-                #self.cancelHistoricalData(requestID)
-                time.sleep(10.1)  # We need to wait for processing the request.
+                time.sleep(1.0 + 0.1)  # We need to wait for processing the request.
                 contract[productName].delay += 1
             self.modifyProductList(productName)
         self.disconnect()
