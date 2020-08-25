@@ -1,6 +1,7 @@
 import os
 import time
 import csv
+import sys
 from datetime import datetime, timedelta, date
 
 def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
@@ -20,7 +21,7 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
         queryHour = (dt_start + timedelta(seconds=(delayV + stepCount) * 30.0 * 60.0)).hour
         dt_start_adj = dt_start + timedelta(seconds=(delayV + stepCount) * 30.0 * 60.0)
 
-        if(delayV == -999 or dt_start_adj >= dt_end):
+        if(delayV <= 0 or dt_start_adj >= dt_end):
             return 0
 
         if (queryDay < 5 and (queryHour >= 5 and queryHour < 17)):
@@ -62,6 +63,8 @@ if __name__ == "__main__":
         f.close()
 
         print(datetime.now())
+        if(sumValidRequest > 15):
+            sys.exit("Number of products greater than 15")
+        time.sleep((2.0 * 2.0 * sumValidRequest) / 60.0 * (10.0 * 60.0) + 10.1)
         os.system('python HistoricalData.py')
-        time.sleep((2.0 * 2.0 * sumValidRequest)/60.0 * (10.0 * 60.0) + 10.1) #Need to implement the logic in HistoricalData as well
         #No more than 60 requests within any ten minute period; BID_ASK is counted as twice and we request 2x 30 minutes.

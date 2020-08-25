@@ -42,14 +42,21 @@ class App(EWrapper,EClient):
         #Making more than 60 requests within any ten minute period. (BID_ASK is counted as twice).
 
         for productName in contract:
-            while contract[productName].initialDelay > (contract[productName].delay - 2):
-                dt = datetime.strptime(contract[productName].startDate, "%Y-%m-%d %H:%M:%S")
-                queryTime = (dt + timedelta(seconds=contract[productName].delay*30.0*60.0)).strftime("%Y%m%d %H:%M:%S") #30 minutes step.
+            dt_start = datetime.strptime(contract[productName].startDate, "%Y-%m-%d %H:%M:%S")
+            if (contract[productName].endDate == ""):
+                dt_end = datetime.now()
+            else:
+                dt_end = datetime.strptime(contract[productName].endDate, "%Y-%m-%d %H:%M:%S")
+            dt_start_adj = dt_start + timedelta(seconds=contract[productName].delay * 30.0 * 60.0)
+
+            while contract[productName].initialDelay > (contract[productName].delay - 2) and dt_start_adj < dt_end and contract[productName].delay >= 0:
+                queryTime = (dt_start + timedelta(seconds=contract[productName].delay*30.0*60.0)).strftime("%Y%m%d %H:%M:%S") #30 minutes step.
                 requestID += 1
                 self.reqHistoricalData(requestID, contract[productName], queryTime, "1800 S", "1 secs", "BID_ASK", 1, 1, False, [])
                 marketRequestId.update({requestID: productName})
-                time.sleep(1.0 + 0.1)  # We need to wait for processing the request.
+                time.sleep(5.0 + 0.1)  # We need to wait for processing the request.
                 contract[productName].delay += 1
+                dt_start_adj = dt_start + timedelta(seconds=contract[productName].delay * 30.0 * 60.0)
             self.modifyProductList(productName)
         self.disconnect()
 
