@@ -4,10 +4,18 @@ import csv
 import sys
 from datetime import datetime, timedelta, date
 
-def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
-    with open("productList_historicalData.txt", "r") as file:
-        filedata = file.read()
+updateDelay = {}
 
+class HandleUpdateDelay():
+    def __init__(self):
+        self.previousString = ""
+        self.newString = ""
+
+    def updateElement(self,previousStringV,newStringV):
+        self.previousString = previousStringV
+        self.newString = newStringV
+
+def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
     condition = True
     stepCount = 0
 
@@ -22,7 +30,7 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
         dt_start_adj = dt_start + timedelta(seconds=(delayV + stepCount) * 30.0 * 60.0)
 
         if(delayV <= 0 or dt_start_adj >= dt_end):
-            return 0
+            break
 
         if (queryDay < 5 and (queryHour >= 5 and queryHour < 17)):
             condition = False
@@ -31,27 +39,33 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
 
     oldStr = str(productV) + "," + str(delayV) + ","
     newStr = str(productV) + "," + str(delayV + stepCount) + ","
-    filedata = filedata.replace(oldStr, newStr)
+    updateDelay[productV].updateElement(oldStr,newStr)
 
-    with open("productList_historicalData.txt", "w") as file:
-        file.write(filedata)
-
-    return 1
+    if(delayV <= 0 or dt_start_adj >= dt_end): #Out-of-scope; no datastream required.
+        return 0
+    else:
+        return 1
 
 if __name__ == "__main__":
     condition = True
+
+    f = open("productList_historicalData.txt", "r")
+    csvReader = csv.reader(f)
+    header = next(csvReader)
+    uniqueIDIndex = header.index("uniqueID")
+
+    if f.mode == 'r':
+        for row in csvReader:
+            updateDelay.update({row[uniqueIDIndex]: HandleUpdateDelay()})
+    f.close()
+    #Create mapping to update delays for skipping overnights and weekend.
+
     while condition:
         f = open("productList_historicalData.txt", "r")
         csvReader = csv.reader(f)
 
         header = next(csvReader)
         uniqueIDIndex = header.index("uniqueID")
-        symbolIndex = header.index("symbol")
-        securityIndex = header.index("securityType")
-        exchangeIndex = header.index("exchange")
-        currencyIndex = header.index("currency")
-        expirationIndex = header.index("expiration")
-        multiplierIndex = header.index("multiplier")
         startDateIndex = header.index("startDate")
         endDateIndex = header.index("endDate")
         delayTimeIndex = header.index("delayTime")
@@ -61,6 +75,20 @@ if __name__ == "__main__":
             for row in csvReader:
                 sumValidRequest += evaluateTimeStamp(row[uniqueIDIndex],row[startDateIndex],row[endDateIndex],int(row[delayTimeIndex]))
         f.close()
+        #Evaluate how many data streams need to be opened.
+
+        if sumValidRequest = 0:
+            sys.exit("No datastream required")
+        #Stop the script if there is nothing to request.
+
+        with open("productList_historicalData.txt", "r") as file:
+            filedata = file.read()
+
+            for key in updateDelay:
+                filedata = filedata.replace(updateDelay[key].previousString,updateDelay[key].newString)
+
+            file.write(filedata)
+        #Update the delays to skip overnights and weekends.
 
         print(datetime.now())
         if(sumValidRequest > 15):
