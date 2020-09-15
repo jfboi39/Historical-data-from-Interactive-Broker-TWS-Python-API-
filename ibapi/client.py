@@ -57,7 +57,7 @@ class EClient(object):
         self.connTime = None
         self.connState = None
         self.optCapab = ""
-        self.async = False
+        self.async_ = False
         self.reader = None
         self.decode = None
         self.setConnState(EClient.DISCONNECTED)

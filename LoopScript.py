@@ -29,7 +29,7 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
         queryHour = (dt_start + timedelta(seconds=(delayV + stepCount) * 30.0 * 60.0)).hour
         dt_start_adj = dt_start + timedelta(seconds=(delayV + stepCount) * 30.0 * 60.0)
 
-        if(delayV <= 0 or dt_start_adj >= dt_end):
+        if(delayV < 0 or dt_start_adj >= dt_end):
             break
 
         if (queryDay < 5 and (queryHour >= 5 and queryHour < 17)):
@@ -41,7 +41,7 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
     newStr = str(productV) + "," + str(delayV + stepCount) + ","
     updateDelay[productV].updateElement(oldStr,newStr)
 
-    if(delayV <= 0 or dt_start_adj >= dt_end): #Out-of-scope; no datastream required.
+    if(delayV < 0 or dt_start_adj >= dt_end): #Out-of-scope; no datastream required.
         return 0
     else:
         return 1
@@ -73,17 +73,20 @@ if __name__ == "__main__":
         sumValidRequest = 0
         if f.mode == 'r':
             for row in csvReader:
+                #print(row[uniqueIDIndex],row[startDateIndex],row[endDateIndex],int(row[delayTimeIndex]))
                 sumValidRequest += evaluateTimeStamp(row[uniqueIDIndex],row[startDateIndex],row[endDateIndex],int(row[delayTimeIndex]))
         f.close()
         #Evaluate how many data streams need to be opened.
 
-        if sumValidRequest = 0:
+        if sumValidRequest == 0:
             sys.exit("No datastream required")
         #Stop the script if there is nothing to request.
 
         with open("productList_historicalData.txt", "r") as file:
             filedata = file.read()
+        file.close()
 
+        with open("productList_historicalData.txt", "w") as file:
             for key in updateDelay:
                 filedata = filedata.replace(updateDelay[key].previousString,updateDelay[key].newString)
 
