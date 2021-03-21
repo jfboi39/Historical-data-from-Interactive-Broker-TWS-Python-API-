@@ -31,8 +31,7 @@ def evaluateTimeStamp(productV, startDateV, endDateV, delayV):
 
         if(delayV < 0 or dt_start_adj >= dt_end):
             break
-
-        if (queryDay < 5 and (queryHour >= 5 and queryHour < 17)):
+        if (queryDay <= 3 or (queryDay == 4 and queryHour <= 17) or (queryDay == 6 and queryHour >= 17)): # Friday = 4
             condition = False
         else:
             stepCount += 2
