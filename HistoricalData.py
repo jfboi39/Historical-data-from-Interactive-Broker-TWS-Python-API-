@@ -15,6 +15,7 @@ import sys
 
 contract = {}
 marketRequestId = {}
+test = 1
 
 class App(EWrapper,EClient):
     def __init__(self):
